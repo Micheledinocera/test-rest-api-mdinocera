@@ -28,8 +28,10 @@ const createUser = (request, response) => {
 
   pool.query('INSERT INTO users (name,points,created_on,modified_on) VALUES ($1,0,NOW(),NOW())', [name], (error, results) => {
     if (error) {throw error}
-    console.log(results);
-    response.status(201).send(`User added with ID: ${results}`)
+    pool.query('SELECT * FROM users;', (err, res) => {
+      if (err) {throw err}
+      response.status(200).json(res.rows)
+    });
   })
 }
 
@@ -38,9 +40,12 @@ const updateNameById = (request, response) => {
   const name = request.body.name
 
   pool.query(
-    'UPDATE users SET name = $1, modified_on=NOW() WHERE id = $2',[name, id],(err, results) => {
-      if (err) {throw err}
-      response.status(200).send(`User modified with ID: ${id}`)
+    'UPDATE users SET name = $1, modified_on=NOW() WHERE id = $2',[name, id],(error) => {
+      if (error) {throw error}
+      pool.query('SELECT * FROM users;', (err, res) => {
+        if (err) {throw err}
+        response.status(200).json(res.rows)
+      });
     }
   )
 }
@@ -48,9 +53,12 @@ const updateNameById = (request, response) => {
 const deleteUserById = (request, response) => {
   const id = parseInt(request.params.id)
 
-  pool.query('DELETE FROM users WHERE id = $1', [id], (err, results) => {
-    if (err) {throw err}
-    response.status(200).send(`User deleted with ID: ${id}`)
+  pool.query('DELETE FROM users WHERE id = $1', [id], (error) => {
+    if (error) {throw error}
+    pool.query('SELECT * FROM users;', (err, res) => {
+      if (err) {throw err}
+      response.status(200).json(res.rows)
+    });
   })
 }
 
