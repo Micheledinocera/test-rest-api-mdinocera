@@ -49,7 +49,37 @@ const updateNameById = (request, response) => {
     }
   )
 }
-  
+
+const updatePointsByName = (request, response) => {
+  const name = request.body.name;
+  const description = request.body.description;
+  const points = parseInt(request.body.points);
+
+  pool.query('SELECT * FROM users WHERE name = $1;',[name], (err, res) => {
+    if (err) {throw err}
+    if(res.rows[0]==undefined)
+      response.status(404).json({message:"User not found"})
+    else {
+      const newPoints=parseInt(res.rows[0].points)+points
+      pool.query(
+        'UPDATE users SET points = $1, modified_on=NOW() WHERE name = $2',[newPoints, name],(error) => {
+          if (error) {throw error}
+          pool.query('SELECT * FROM users;', (errSelect, resSelect) => {
+            if (errSelect) {throw errSelect}
+            response.status(200).json(resSelect.rows)
+          });
+        }
+      )
+    }
+  });
+
+  pool.query(
+    'INSERT INTO transitions (name,points,description,created_on,modified_on) VALUES ($1,$2,$3,NOW(),NOW())',[name,points,description],(error) => {
+      if (error) {throw error}
+    }
+  )
+}
+
 const deleteUserById = (request, response) => {
   const id = parseInt(request.params.id)
 
@@ -69,4 +99,5 @@ module.exports = {
   createUser,
   updateNameById,
   deleteUserById,
+  updatePointsByName
 }
