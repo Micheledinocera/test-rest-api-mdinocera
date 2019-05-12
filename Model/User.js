@@ -7,6 +7,13 @@ const getAllUsers = (request, response) => {
   });
 }
 
+const getAllTransitions = (request, response) => {
+  pool.query('SELECT * FROM transitions;', (err, res) => {
+    if (err) {throw err}
+    response.status(200).json(res.rows)
+  });
+}
+
 const getUserById = (request, response) => {
   const id = parseInt(request.params.id)
   pool.query('SELECT * FROM users WHERE id = $1;',[id], (err, res) => {
@@ -99,5 +106,6 @@ module.exports = {
   createUser,
   updateNameById,
   deleteUserById,
-  updatePointsByName
+  updatePointsByName,
+  getAllTransitions
 }

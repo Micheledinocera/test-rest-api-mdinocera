@@ -16,6 +16,7 @@ app
 
 app.get('/', (req, res) => res.sendFile(__dirname+'/views/index.html'))
 app.get('/api/users', User.getAllUsers);
+app.get('/api/transitions', User.getAllTransitions);
 app.get('/api/userById/:id', User.getUserById)
 app.get('/api/userByName/:name', User.getUserByName)
 app.post('/api/user', User.createUser)
