@@ -1,14 +1,14 @@
 const pool= require('./connection').pool;
 
 const getAllUsers = (request, response) => {
-  pool.query('SELECT * FROM users;', (err, res) => {
+  pool.query('SELECT * FROM users ORDER BY points DESC', (err, res) => {
     if (err) {throw err}
     response.status(200).json(res.rows)
   });
 }
 
 const getAllTransitions = (request, response) => {
-  pool.query('SELECT * FROM transitions;', (err, res) => {
+  pool.query('SELECT * FROM transitions ORDER BY modified_on DESC', (err, res) => {
     if (err) {throw err}
     response.status(200).json(res.rows)
   });
@@ -88,7 +88,15 @@ const updatePointsByName = (request, response) => {
 }
 
 const deleteUserById = (request, response) => {
-  const id = parseInt(request.params.id)
+  const id = parseInt(request.params.id);
+  var name='';
+  pool.query('SELECT * FROM users WHERE id = $1', [id], (err, res) => {
+    if (err) {throw err}
+    name=res.rows[0].name;
+    pool.query('DELETE FROM transitions WHERE name = $1', [name], (error) => {
+      if (error) {throw error}  
+    })
+  });
 
   pool.query('DELETE FROM users WHERE id = $1', [id], (error) => {
     if (error) {throw error}
