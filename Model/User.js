@@ -32,7 +32,7 @@ const getAllUsersWithId = (request, response) => {
 
 const getAllTransitionsWithId = (request, response) => {
   const owner_id = request.body.owner_id;
-  pool.query('SELECT * FROM transitions where owner_id=$1 ORDER BY modified_on DESC', [owner_id], (err, res) => {
+  pool.query('SELECT transitions.id AS id, transitions.created_on AS created_on, transitions.description AS description, transitions.points AS points, users.name AS name FROM transitions INNER JOIN users ON transitions.user_id = users.id WHERE users.owner_id=$1 ORDER BY transitions.modified_on DESC', [owner_id], (err, res) => {
     if (err) {throw err}
     response.status(200).json(res.rows)
   });
