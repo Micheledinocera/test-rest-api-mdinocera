@@ -1,7 +1,9 @@
 const pool= require('./connection').pool;
 
 const getAllFavorites = (request, response) => {
-  pool.query('SELECT * FROM favorites;', (err, res) => {
+  const owner_id = request.body.id;
+
+  pool.query('SELECT * FROM favorites where owner_id=$1;',[owner_id], (err, res) => {
     if (err) {throw err}
     response.status(200).json(res.rows)
   });
@@ -10,8 +12,9 @@ const getAllFavorites = (request, response) => {
 const createFavorite = (request, response) => {
   const points = parseInt(request.body.points);
   const description = request.body.description;
+  const owner_id = request.body.id;
 
-  pool.query('INSERT INTO favorites (points,description,created_on,modified_on) VALUES ($1,$2,NOW(),NOW())', [points,description], (error, results) => {
+  pool.query('INSERT INTO favorites (owner_id,points,description,created_on,modified_on) VALUES ($1,$2,$3,NOW(),NOW())', [owner_id,points,description], (error, results) => {
     if (error) {throw error}
     pool.query('SELECT * FROM favorites;', (err, res) => {
       if (err) {throw err}
