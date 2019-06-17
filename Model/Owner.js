@@ -20,10 +20,18 @@ const login = (request, response) => {
   const password = request.body.password;
   pool.query('SELECT * FROM owners WHERE username = $1 AND password = $2;',[username,password], (err, res) => {
     if (err) {throw err}
-    if(res.rows[0]==undefined)
-      response.status(404).json({message:"User not found"})
-    else
-      response.status(200).json(res.rows[0])
+    if(res.rows[0]==undefined){
+      pool.query('SELECT owners.id AS id, users.name AS name, owners.username AS ownerName FROM users INNER JOIN owners ON users.owner_id = owners.id WHERE users.name=$1',[username], (selectErr, selectRes) => {
+        if (selectErr) {throw selectErr}
+        console.log(selectRes.rows[0])
+        if(selectRes.rows[0]==undefined) response.status(404).json({message:"User not found"});
+        else response.status(200).json(selectRes.rows);
+      });
+    } else {
+      var resWithType=res.rows[0];
+      resWithType.type="admin";
+      response.status(200).json(resWithType)
+    }
   });
 }
 
